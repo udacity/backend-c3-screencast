@@ -57,10 +57,16 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
+	var role models.Role
+	if err := database.DB.Where("name = ?", "user").First(&role).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Default role not found"})
+		return
+	}
+
 	user := models.User{
 		Username: input.Username,
 		Password: string(hashedPassword),
-		Role:     "user",
+		RoleID:   role.ID,
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -68,7 +74,10 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User registered successfully",
+		"role":    role.Name,
+	})
 }
 
 func LoginHandler(c *gin.Context) {
