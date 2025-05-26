@@ -6,6 +6,7 @@ import (
 
 	"eventure/internal/database"
 	"eventure/internal/handlers"
+	"eventure/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 
@@ -20,6 +21,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(middleware.SecureHeaders())
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"}, // Front end origin
