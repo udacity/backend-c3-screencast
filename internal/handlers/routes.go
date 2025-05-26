@@ -10,7 +10,7 @@ func RegisterRoutes(r *gin.Engine) {
 	auth := r.Group("/auth")
 	{
 		auth.POST("/register", RegisterHandler)
-		auth.POST("/login", LoginHandler)
+		auth.POST("/login", middleware.RateLimitMiddleware(), LoginHandler)
 		auth.POST("/refresh", RefreshHandler)
 		auth.GET("/profile", middleware.RequireAuth(), ProfileHandler)
 	}
