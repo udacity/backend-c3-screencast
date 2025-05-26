@@ -5,6 +5,7 @@ import (
 	"eventure/internal/models"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -19,6 +20,17 @@ type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
+
+type RefreshRequest struct {
+	Username     string `json:"username" binding:"required"`
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// Simulated refresh token store (in-memory)
+var (
+	refreshTokenStore = make(map[string]string)
+	storeMutex        = sync.Mutex{}
+)
 
 func RegisterHandler(c *gin.Context) {
 	var input RegisterInput
@@ -81,8 +93,32 @@ func LoginHandler(c *gin.Context) {
 	accessToken := "access-token-" + strings.ToLower(user.Username)
 	refreshToken := "refresh-token-" + strings.ToLower(user.Username)
 
+	storeMutex.Lock()
+	refreshTokenStore[user.Username] = refreshToken
+	storeMutex.Unlock()
+
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
+}
+
+func RefreshHandler(c *gin.Context) {
+	var req RefreshRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	storeMutex.Lock()
+	storedToken, ok := refreshTokenStore[req.Username]
+	storeMutex.Unlock()
+
+	if !ok || storedToken != req.RefreshToken {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	newAccessToken := "access-token-" + strings.ToLower(req.Username)
+	c.JSON(http.StatusOK, gin.H{"access_token": newAccessToken})
 }
