@@ -4,6 +4,10 @@ import (
 	"log"
 	"os"
 
+	"eventure/internal/database"
+
+	"eventure/internal/handlers"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -15,6 +19,13 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	err = database.Connect()
+	if err != nil {
+		log.Fatal("Failed to connect to the database:", err)
+	}
+
+	handlers.RegisterRoutes(r)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
