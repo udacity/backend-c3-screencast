@@ -27,5 +27,6 @@ func RegisterRoutes(r *gin.Engine) {
 		event.POST("", CreateEventHandler)
 		event.PUT("/:id", middleware.RequireEventOwnershipOrPermission("update"), UpdateEventHandler)
 		event.DELETE("/:id", middleware.RequireEventOwnershipOrPermission("delete"), DeleteEventHandler)
+		event.GET("/search", SearchEventsHandler)
 	}
 }

@@ -97,3 +97,32 @@ func DeleteEventHandler(c *gin.Context) {
 		"id":      id,
 	})
 }
+
+func SearchEventsHandler(c *gin.Context) {
+	query := c.Query("title")
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'title' is required"})
+		return
+	}
+
+	var unsafeResults []models.Event
+	var safeResults []models.Event
+
+	// Unsafe: string interpolation can be exploited
+	// rawQuery := fmt.Sprintf("SELECT * FROM events WHERE title LIKE '%%%s%%'", query)
+	// if err := database.DB.Raw(rawQuery).Scan(&unsafeResults).Error; err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Unsafe query failed"})
+	// 	return
+	// }
+
+	// Safe: uses parameterized queries
+	if err := database.DB.Where("title ILIKE ?", "%"+query+"%").Find(&safeResults).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Safe query failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"unsafe_results": unsafeResults,
+		"safe_results":   safeResults,
+	})
+}
