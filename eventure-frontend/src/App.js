@@ -2,6 +2,7 @@ import { useState } from "react";
 import RegisterForm from "./components/RegisterForm";
 import LoginForm from "./components/LoginForm";
 import TokenDisplay from "./components/TokenDisplay";
+import ProtectedActions from "./components/ProtectedActions";
 import "./App.css";
 
 function App() {
@@ -27,6 +28,10 @@ function App() {
 
       <section>
         <TokenDisplay accessToken={accessToken} refreshToken={refreshToken} />
+      </section>
+
+      <section>
+        <ProtectedActions accessToken={accessToken} />
       </section>
     </div>
   );
