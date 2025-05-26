@@ -1,7 +1,12 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func RegisterRoutes(r *gin.Engine) {
-    // Add route groups and handlers here
+	auth := r.Group("/auth")
+	{
+		auth.POST("/register", RegisterHandler)
+	}
 }
