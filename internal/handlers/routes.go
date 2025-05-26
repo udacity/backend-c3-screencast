@@ -15,12 +15,9 @@ func RegisterRoutes(r *gin.Engine) {
 		auth.GET("/profile", middleware.RequireAuth(), ProfileHandler)
 	}
 
-	// Temporary (for testing)
 	admin := r.Group("/admin")
 	admin.Use(middleware.RequireAuth(), middleware.RequireRole("admin"))
 	{
-		admin.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "pong"})
-		})
+		admin.GET("/users", ListUsersHandler)
 	}
 }
