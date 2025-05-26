@@ -3,7 +3,6 @@ package middleware
 import (
 	"eventure/internal/database"
 	"eventure/internal/models"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -52,8 +51,15 @@ func RequireEventOwnershipOrPermission(action string) gin.HandlerFunc {
 			}
 		}
 
-		log.Printf("[ACCESS DENIED] User '%s' (ID %d, role '%s') tried to %s event %d but is not the owner and lacks permission '%s'",
-			user.Username, user.ID, user.Role.Name, action, event.ID, "event:"+required)
+		logAccessDenied("Ownership and override check failed", map[string]interface{}{
+			"event_id": eventID,
+			"owner_id": event.OwnerID,
+			"user_id":  user.ID,
+			"user":     user.Username,
+			"role":     user.Role.Name,
+			"required": "event:" + required,
+			"path":     c.Request.URL.Path,
+		})
 
 		c.JSON(http.StatusForbidden, gin.H{
 			"error":       "Not authorized for this event",

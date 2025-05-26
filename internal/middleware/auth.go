@@ -13,6 +13,11 @@ func RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.HasPrefix(auth, "Bearer access-token-") {
+			logAccessDenied("Missing or invalid token", map[string]interface{}{
+				"auth_header": auth,
+				"path":        c.Request.URL.Path,
+				"method":      c.Request.Method,
+			})
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
 			c.Abort()
 			return
@@ -25,6 +30,11 @@ func RequireAuth() gin.HandlerFunc {
 			Preload("Role.Permissions").
 			Where("username = ?", username).
 			First(&user).Error; err != nil {
+			logAccessDenied("User not found from token", map[string]interface{}{
+				"username": username,
+				"path":     c.Request.URL.Path,
+				"method":   c.Request.Method,
+			})
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token or user not found"})
 			c.Abort()
 			return
