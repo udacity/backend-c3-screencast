@@ -20,4 +20,9 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		admin.GET("/users", ListUsersHandler)
 	}
+
+	// Test route for permission-based middleware
+	r.GET("/events", middleware.RequireAuth(), middleware.RequirePermission("event", "read"), func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "Access granted to view events!"})
+	})
 }

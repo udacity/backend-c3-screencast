@@ -20,7 +20,11 @@ func RequireAuth() gin.HandlerFunc {
 
 		username := strings.TrimPrefix(auth, "Bearer access-token-")
 		var user models.User
-		if err := database.DB.Preload("Role").Where("username = ?", username).First(&user).Error; err != nil {
+		if err := database.DB.
+			Preload("Role").
+			Preload("Role.Permissions").
+			Where("username = ?", username).
+			First(&user).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token or user not found"})
 			c.Abort()
 			return
