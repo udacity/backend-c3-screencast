@@ -133,6 +133,8 @@ func RefreshHandler(c *gin.Context) {
 }
 
 func ProfileHandler(c *gin.Context) {
+	// TEMPORARY
+	// panic("oops")
 	user, exists := c.Get("currentUser")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found in context"})

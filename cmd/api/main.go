@@ -20,7 +20,9 @@ func main() {
 		log.Println(".env file not found or couldn't be loaded")
 	}
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(middleware.CustomRecovery())
 	r.Use(middleware.SecureHeaders())
 
 	r.Use(cors.New(cors.Config{
