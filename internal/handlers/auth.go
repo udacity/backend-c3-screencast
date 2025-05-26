@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"eventure/internal/authz"
 	"eventure/internal/database"
 	"eventure/internal/models"
 	"net/http"
@@ -145,20 +144,4 @@ func ProfileHandler(c *gin.Context) {
 		"username": u.Username,
 		"role":     u.Role,
 	})
-}
-
-func CanViewEventsHandler(c *gin.Context) {
-	user, exists := c.Get("currentUser")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not in context"})
-		return
-	}
-
-	u := user.(models.User)
-
-	if authz.CanPerform(u, "read", "event") {
-		c.JSON(http.StatusOK, gin.H{"message": "✅ Access granted via CanPerform()"})
-	} else {
-		c.JSON(http.StatusForbidden, gin.H{"message": "❌ Access denied via CanPerform()"})
-	}
 }
