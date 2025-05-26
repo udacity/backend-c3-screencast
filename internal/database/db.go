@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"eventure/internal/models"
@@ -26,9 +27,21 @@ func Connect() error {
 
 	fmt.Println("Connected to Postgres!")
 
-	if err := DB.AutoMigrate(&models.User{}); err != nil {
+	if err := DB.AutoMigrate(&models.User{}, &models.Role{}); err != nil {
 		return fmt.Errorf("AutoMigrate failed: %w", err)
 	}
 
+	seedRoles()
+
 	return nil
+}
+
+func seedRoles() {
+	defaultRoles := []string{"admin", "user"}
+	for _, name := range defaultRoles {
+		var role models.Role
+		if err := DB.FirstOrCreate(&role, models.Role{Name: name}).Error; err != nil {
+			log.Printf("Failed to seed role %s: %v", name, err)
+		}
+	}
 }
