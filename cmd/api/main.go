@@ -5,8 +5,9 @@ import (
 	"os"
 
 	"eventure/internal/database"
-
 	"eventure/internal/handlers"
+
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -19,6 +20,13 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Front end origin
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	err = database.Connect()
 	if err != nil {
