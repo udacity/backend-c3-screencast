@@ -25,4 +25,8 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/events", middleware.RequireAuth(), middleware.RequirePermission("event", "read"), func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Access granted to view events!"})
 	})
+
+	r.GET("/events/canperform",
+		middleware.RequireAuth(),
+		CanViewEventsHandler)
 }
