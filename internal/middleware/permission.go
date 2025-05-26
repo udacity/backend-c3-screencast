@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"eventure/internal/models"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,9 @@ func RequirePermission(resource string, action string) gin.HandlerFunc {
 				return
 			}
 		}
+
+		log.Printf("[ACCESS DENIED] User '%s' (ID %d) with role '%s' lacks permission '%s'",
+			user.Username, user.ID, role.Name, required)
 
 		c.JSON(http.StatusForbidden, gin.H{
 			"error":      "Permission denied",
